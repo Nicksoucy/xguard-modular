@@ -35,7 +35,7 @@ export function renderHome(app) {
             <div class="max-w-7xl mx-auto p-6">
                 <!-- Statistiques avec animation -->
                 <div class="grid md:grid-cols-4 gap-6 mb-8 animate-fade-in">
-                    <div onclick="app.currentView='employees'; app.render()" 
+                    <div onclick="app.navigateTo('employees')" 
                         class="stat-card rounded-xl shadow-lg p-6 hover-lift cursor-pointer">
                         <div class="flex items-center justify-between mb-2">
                             <div class="p-3 bg-blue-100 rounded-lg">
@@ -48,7 +48,7 @@ export function renderHome(app) {
                         <p class="text-sm text-gray-600">Employés actifs</p>
                     </div>
 
-                    <div onclick="app.currentView='transactions'; app.render()" 
+                    <div onclick="app.navigateTo('transactions')" 
                         class="stat-card rounded-xl shadow-lg p-6 hover-lift cursor-pointer">
                         <div class="flex items-center justify-between mb-2">
                             <div class="p-3 bg-green-100 rounded-lg">
@@ -61,7 +61,7 @@ export function renderHome(app) {
                         <p class="text-sm text-gray-600">Transactions totales</p>
                     </div>
 
-                    <div onclick="app.currentView='pendingSignatures'; app.render()" 
+                    <div onclick="app.navigateTo('pendingSignatures')" 
                         class="stat-card rounded-xl shadow-lg p-6 hover-lift cursor-pointer">
                         <div class="flex items-center justify-between mb-2">
                             <div class="p-3 bg-orange-100 rounded-lg">
@@ -74,7 +74,7 @@ export function renderHome(app) {
                         <p class="text-sm text-gray-600">En attente signature</p>
                     </div>
 
-                    <div onclick="app.currentView='lowStock'; app.render()" 
+                    <div onclick="app.navigateTo('lowStock')" 
                         class="stat-card rounded-xl shadow-lg p-6 hover-lift cursor-pointer">
                         <div class="flex items-center justify-between mb-2">
                             <div class="p-3 bg-red-100 rounded-lg">
@@ -135,7 +135,7 @@ export function renderHome(app) {
 
                 <!-- Actions secondaires -->
                 <div class="grid md:grid-cols-3 gap-4 animate-fade-in" style="animation-delay: 0.4s">
-                    <button onclick="app.currentView='selectEmployee'; app.render()" 
+                    <button onclick="app.navigateTo('selectEmployee')" 
                         class="bg-white/90 backdrop-blur rounded-xl p-6 hover:bg-white transition-all duration-300 flex items-center group">
                         <div class="p-4 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl mr-4 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ export function renderHome(app) {
                         </div>
                     </button>
 
-                    <button onclick="app.currentView='inventory'; app.render()" 
+                    <button onclick="app.navigateTo('inventory')" 
                         class="bg-white/90 backdrop-blur rounded-xl p-6 hover:bg-white transition-all duration-300 flex items-center group">
                         <div class="p-4 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl mr-4 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export function renderHome(app) {
                         </div>
                     </button>
 
-                    <button onclick="app.currentView='inventoryManagement'; app.render()" 
+                    <button onclick="app.navigateTo('inventoryManagement')" 
                         class="bg-white/90 backdrop-blur rounded-xl p-6 hover:bg-white transition-all duration-300 flex items-center group">
                         <div class="p-4 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl mr-4 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
