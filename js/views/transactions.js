@@ -3,8 +3,7 @@
 export function renderTransaction(app) {
     const employee = app.db.getEmployee(app.currentEmployee);
     if (!employee) {
-        app.currentView = 'selectEmployee';
-        app.render();
+        app.navigateTo('selectEmployee');
         return '';
     }
     
@@ -24,7 +23,7 @@ export function renderTransaction(app) {
                             </h1>
                             <p class="text-purple-100">${employee.name} (${employee.id})</p>
                         </div>
-                        <button onclick="app.currentView='home'; app.render()" 
+                        <button onclick="app.navigateTo('home')" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -174,7 +173,7 @@ export function renderTransactionsList(app) {
             <div class="glass-effect shadow-lg">
                 <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Historique des transactions</h1>
-                    <button onclick="app.currentView='home'; app.render()" 
+                    <button onclick="app.navigateTo('home')" 
                         class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
