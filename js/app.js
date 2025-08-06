@@ -1,4 +1,4 @@
-// app.js - Point d'entrée principal
+// app.js - Point d'entrée principal avec gestion de l'historique
 import { Database } from './database.js';
 import { renderHome } from './views/home.js';
 import { renderEmployeesList, renderEmployeeDetails, renderNewEmployee, renderSelectEmployee } from './views/employees.js';
@@ -33,6 +33,27 @@ class XGuardApp {
 
         // Exposer l'app globalement pour les onclick
         window.app = this;
+        
+        // Gérer l'historique du navigateur
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.view) {
+                this.currentView = event.state.view;
+                this.currentEmployee = event.state.employee || null;
+                this.transactionType = event.state.transactionType || 'attribution';
+                this.showInactive = event.state.showInactive || false;
+                this.render();
+            }
+        });
+        
+        // Sauvegarder l'état initial
+        if (!window.history.state) {
+            window.history.replaceState({
+                view: this.currentView,
+                employee: this.currentEmployee,
+                transactionType: this.transactionType,
+                showInactive: this.showInactive
+            }, '', window.location.href);
+        }
         
         this.render();
     }
@@ -86,26 +107,54 @@ class XGuardApp {
         }
     }
 
+    navigateTo(view, params = {}) {
+        // Mettre à jour l'état de l'application
+        this.currentView = view;
+        
+        if (params.employee !== undefined) {
+            this.currentEmployee = params.employee;
+        }
+        if (params.transactionType !== undefined) {
+            this.transactionType = params.transactionType;
+        }
+        if (params.showInactive !== undefined) {
+            this.showInactive = params.showInactive;
+        }
+        
+        // Ajouter à l'historique du navigateur
+        const state = {
+            view: this.currentView,
+            employee: this.currentEmployee,
+            transactionType: this.transactionType,
+            showInactive: this.showInactive
+        };
+        
+        window.history.pushState(state, '', window.location.href);
+        
+        // Re-render
+        this.render();
+    }
+
     // Méthodes de navigation
     startTransaction(type) {
         this.transactionType = type;
         this.selection = [];
-        this.currentView = 'selectEmployee';
-        this.render();
+        this.navigateTo('selectEmployee', { transactionType: type });
     }
 
     startTransactionForEmployee(type, employeeId) {
         this.transactionType = type;
         this.currentEmployee = employeeId;
         this.selection = [];
-        this.currentView = 'transaction';
-        this.render();
+        this.navigateTo('transaction', { 
+            transactionType: type, 
+            employee: employeeId 
+        });
     }
 
     selectEmployee(employeeId) {
         this.currentEmployee = employeeId;
-        this.currentView = 'transaction';
-        this.render();
+        this.navigateTo('transaction', { employee: employeeId });
     }
 
     // Gestion des employés
@@ -151,8 +200,7 @@ class XGuardApp {
     deactivateEmployee(employeeId) {
         if (confirm('Êtes-vous sûr de vouloir désactiver cet employé?')) {
             this.db.updateEmployee(employeeId, { active: false });
-            this.currentView = 'employees';
-            this.render();
+            this.navigateTo('employees');
         }
     }
 
@@ -241,8 +289,7 @@ class XGuardApp {
 
         if (this.transactionType === 'retour') {
             alert('Retour enregistré avec succès!');
-            this.currentView = 'home';
-            this.render();
+            this.navigateTo('home');
         } else {
             const employee = this.db.getEmployee(this.currentEmployee);
             const linkUrl = `${window.location.origin}${window.location.pathname}?token=${transaction.linkToken}`;
@@ -290,7 +337,7 @@ Merci,
 XGuard Réception</textarea>
                 </div>
                 
-                <button onclick="document.body.removeChild(this.closest('.fixed')); app.currentView='home'; app.render();" 
+                <button onclick="document.body.removeChild(this.closest('.fixed')); app.navigateTo('home');" 
                     class="w-full bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 transition font-medium">
                     Fermer et terminer
                 </button>
@@ -301,12 +348,197 @@ XGuard Réception</textarea>
 
     // Modals d'inventaire
     showPurchaseModal() {
-        // Code du modal d'achat (trop long pour cet artifact)
-        // Voir le fichier original ou créer inventory-modals.js
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full animate-fade-in">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Enregistrer un achat</h3>
+                <form id="purchase-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Article</label>
+                        <select id="purchase-item" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                            <option value="">Sélectionner un article</option>
+                            ${this.db.data.inventory.map(item => `<option value="${item.name}">${item.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div id="purchase-size-container" style="display:none;">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Taille</label>
+                        <select id="purchase-size" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+                        <input type="number" id="purchase-quantity" min="1" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Coût total</label>
+                        <input type="number" id="purchase-cost" min="0" step="0.01" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fournisseur</label>
+                        <input type="text" id="purchase-supplier" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea id="purchase-notes" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" onclick="document.body.removeChild(this.closest('.fixed'))" 
+                            class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition">
+                            Annuler
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition font-medium">
+                            Enregistrer l'achat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Gérer le changement d'article
+        document.getElementById('purchase-item').addEventListener('change', (e) => {
+            const itemName = e.target.value;
+            const sizeContainer = document.getElementById('purchase-size-container');
+            const sizeSelect = document.getElementById('purchase-size');
+            
+            if (itemName) {
+                const item = this.db.data.inventory.find(i => i.name === itemName);
+                if (item) {
+                    sizeSelect.innerHTML = Object.keys(item.sizes).map(size => 
+                        `<option value="${size}">${size}</option>`
+                    ).join('');
+                    sizeContainer.style.display = 'block';
+                }
+            } else {
+                sizeContainer.style.display = 'none';
+            }
+        });
+
+        // Gérer la soumission
+        document.getElementById('purchase-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const item = document.getElementById('purchase-item').value;
+            const size = document.getElementById('purchase-size').value;
+            const quantity = parseInt(document.getElementById('purchase-quantity').value);
+            const cost = parseFloat(document.getElementById('purchase-cost').value);
+            const supplier = document.getElementById('purchase-supplier').value;
+            const notes = document.getElementById('purchase-notes').value;
+
+            this.db.recordPurchase(item, size, quantity, cost, supplier, notes);
+            alert('Achat enregistré avec succès!');
+            document.body.removeChild(modal);
+            this.render();
+        });
     }
 
     showAdjustmentModal() {
-        // Code du modal d'ajustement
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full animate-fade-in">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Ajustement d'inventaire</h3>
+                <form id="adjustment-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Article</label>
+                        <select id="adjust-item" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                            <option value="">Sélectionner un article</option>
+                            ${this.db.data.inventory.map(item => `<option value="${item.name}">${item.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div id="adjust-size-container" style="display:none;">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Taille</label>
+                        <select id="adjust-size" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Type d'ajustement</label>
+                        <select id="adjust-type" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                            <option value="add">Ajouter au stock</option>
+                            <option value="remove">Retirer du stock</option>
+                            <option value="set">Définir le stock à</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+                        <input type="number" id="adjust-quantity" min="0" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Raison</label>
+                        <select id="adjust-reason" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500">
+                            <option value="inventory">Inventaire physique</option>
+                            <option value="damage">Articles endommagés</option>
+                            <option value="loss">Perte</option>
+                            <option value="correction">Correction d'erreur</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea id="adjust-notes" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" onclick="document.body.removeChild(this.closest('.fixed'))" 
+                            class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition">
+                            Annuler
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition font-medium">
+                            Appliquer l'ajustement
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Gérer le changement d'article
+        document.getElementById('adjust-item').addEventListener('change', (e) => {
+            const itemName = e.target.value;
+            const sizeContainer = document.getElementById('adjust-size-container');
+            const sizeSelect = document.getElementById('adjust-size');
+            
+            if (itemName) {
+                const item = this.db.data.inventory.find(i => i.name === itemName);
+                if (item) {
+                    sizeSelect.innerHTML = Object.keys(item.sizes).map(size => 
+                        `<option value="${size}">${size} (Stock actuel: ${item.sizes[size]})</option>`
+                    ).join('');
+                    sizeContainer.style.display = 'block';
+                }
+            } else {
+                sizeContainer.style.display = 'none';
+            }
+        });
+
+        // Gérer la soumission
+        document.getElementById('adjustment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const itemName = document.getElementById('adjust-item').value;
+            const size = document.getElementById('adjust-size').value;
+            const type = document.getElementById('adjust-type').value;
+            const quantity = parseInt(document.getElementById('adjust-quantity').value);
+            const reason = document.getElementById('adjust-reason').value;
+            const notes = document.getElementById('adjust-notes').value;
+
+            const item = this.db.data.inventory.find(i => i.name === itemName);
+            const currentStock = item.sizes[size];
+            
+            let adjustmentQty = 0;
+            if (type === 'add') {
+                adjustmentQty = quantity;
+            } else if (type === 'remove') {
+                adjustmentQty = -quantity;
+            } else if (type === 'set') {
+                adjustmentQty = quantity - currentStock;
+            }
+
+            this.db.recordAdjustment(itemName, size, adjustmentQty, reason, notes);
+            alert('Ajustement enregistré avec succès!');
+            document.body.removeChild(modal);
+            this.render();
+        });
     }
 
     showAdjustStockModal(itemName, size) {
@@ -328,13 +560,171 @@ XGuard Réception</textarea>
             transaction: this.db.data.transactions.find(t => t.id === link.transactionId)
         })).filter(item => item.transaction);
         
-        // ... (code de la vue pendingSignatures)
-        return `<div>Vue pendingSignatures à implémenter</div>`;
+        return `
+            <div class="min-h-screen gradient-bg">
+                <!-- Header -->
+                <div class="glass-effect shadow-lg">
+                    <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
+                        <h1 class="text-xl font-bold text-gray-800">Signatures en attente</h1>
+                        <button onclick="app.navigateTo('home')" 
+                            class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="max-w-6xl mx-auto p-6">
+                    ${pendingTransactions.length === 0 ? `
+                        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+                            <div class="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-800 mb-2">Aucune signature en attente</h2>
+                            <p class="text-gray-600">Toutes les transactions ont été signées</p>
+                        </div>
+                    ` : `
+                        <div class="bg-white rounded-xl shadow-lg p-6 mb-4">
+                            <p class="text-lg font-semibold text-orange-600">${pendingTransactions.length} signatures en attente</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            ${pendingTransactions.map(({ link, transaction }) => {
+                                const employee = this.db.getEmployee(transaction.employeeId);
+                                const total = transaction.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                                const linkUrl = `${window.location.origin}${window.location.pathname}?token=${link.token}`;
+                                const daysAgo = Math.floor((new Date() - new Date(transaction.createdAt)) / (1000 * 60 * 60 * 24));
+                                
+                                return `
+                                    <div class="bg-white rounded-xl shadow-lg p-6 hover-lift animate-fade-in border-l-4 border-orange-500">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div>
+                                                <p class="font-semibold text-lg">${employee ? employee.name : 'Employé supprimé'}</p>
+                                                <p class="text-sm text-gray-600">Créé il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}</p>
+                                                <p class="text-sm text-gray-600">${new Date(transaction.createdAt).toLocaleString('fr-CA')}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-2xl font-bold text-gray-800">$${total}</p>
+                                                <p class="text-sm text-gray-500">${transaction.items.length} articles</p>
+                                            </div>
+                                        </div>
+                                        <div class="border-t pt-4 mb-4">
+                                            <div class="flex flex-wrap gap-2">
+                                                ${transaction.items.map(item => `
+                                                    <span class="px-2 py-1 bg-gray-100 rounded text-xs">
+                                                        ${item.quantity}× ${item.name} (${item.size})
+                                                    </span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="bg-orange-50 rounded-lg p-4">
+                                            <p class="text-sm font-semibold mb-2">Lien de signature:</p>
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" value="${linkUrl}" readonly 
+                                                    class="flex-1 px-3 py-2 bg-white border rounded-lg text-xs" id="link-${link.token}">
+                                                <button onclick="app.copyLink('${linkUrl}')" 
+                                                    class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
+                                                    Copier
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
     }
 
     renderLowStock() {
-        // ... (code de la vue lowStock)
-        return `<div>Vue lowStock à implémenter</div>`;
+        const lowStockItems = this.db.data.inventory.filter(item => 
+            Object.values(item.sizes).some(qty => qty < 10)
+        );
+        
+        return `
+            <div class="min-h-screen gradient-bg">
+                <!-- Header -->
+                <div class="glass-effect shadow-lg">
+                    <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
+                        <h1 class="text-xl font-bold text-gray-800">Articles en stock faible</h1>
+                        <button onclick="app.navigateTo('home')" 
+                            class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="max-w-6xl mx-auto p-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-4">
+                        <div class="flex justify-between items-center">
+                            <p class="text-lg font-semibold text-red-600">${lowStockItems.length} articles avec stock faible</p>
+                            <button onclick="app.downloadInventoryReport()" 
+                                class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Télécharger inventaire
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        ${lowStockItems.map(item => {
+                            const totalStock = Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
+                            const criticalSizes = Object.entries(item.sizes).filter(([size, qty]) => qty < 10);
+                            const outOfStock = Object.entries(item.sizes).filter(([size, qty]) => qty === 0);
+                            
+                            return `
+                                <div class="bg-white rounded-xl shadow-lg p-6 hover-lift animate-fade-in border-l-4 ${totalStock < 10 ? 'border-red-500' : 'border-orange-500'}">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h3 class="font-semibold text-lg">${item.name}</h3>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Stock total</p>
+                                            <p class="text-3xl font-bold ${totalStock < 10 ? 'text-red-600' : 'text-orange-600'}">${totalStock}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    ${outOfStock.length > 0 ? `
+                                        <div class="bg-red-50 rounded-lg p-3 mb-3">
+                                            <p class="text-sm font-semibold text-red-700 mb-1">Rupture de stock:</p>
+                                            <div class="flex flex-wrap gap-2">
+                                                ${outOfStock.map(([size]) => `
+                                                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                                        ${size}
+                                                    </span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div class="bg-orange-50 rounded-lg p-3">
+                                        <p class="text-sm font-semibold text-orange-700 mb-1">Stock faible:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            ${criticalSizes.map(([size, qty]) => `
+                                                <span class="px-3 py-1 ${qty === 0 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'} rounded-full text-sm font-medium">
+                                                    ${size}: ${qty}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t">
+                                        <p class="text-sm text-gray-600">Prix unitaire: <span class="font-semibold">$${item.price}</span></p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     renderError(title, message) {
@@ -372,8 +762,7 @@ XGuard Réception</textarea>
 
             const newEmp = this.db.addEmployee(employee);
             this.currentEmployee = newEmp.id;
-            this.currentView = 'transaction';
-            this.render();
+            this.navigateTo('transaction', { employee: newEmp.id });
         });
     }
 
@@ -488,8 +877,7 @@ XGuard Réception</textarea>
             this.db.save();
             
             alert('Article ajouté avec succès!');
-            this.currentView = 'inventoryManagement';
-            this.render();
+            this.navigateTo('inventoryManagement');
         });
     }
 
