@@ -11,7 +11,12 @@
 <body class="bg-gray-50">
     <div id="app"></div>
     
-    <!-- Chargement des modules JavaScript -->
-    <script type="module" src="js/app.js"></script>
+    <!-- Modules JavaScript dans le bon ordre -->
+    <script type="module">
+        import { XGuardApp } from './js/app.js';
+        
+        // Initialiser l'application
+        window.app = new XGuardApp();
+    </script>
 </body>
 </html>
