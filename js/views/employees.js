@@ -10,7 +10,7 @@ export function renderEmployeesList(app) {
             <div class="glass-effect shadow-lg">
                 <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Liste des employés</h1>
-                    <button onclick="app.currentView='home'; app.render()" 
+                    <button onclick="app.navigateTo('home')" 
                         class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -24,14 +24,14 @@ export function renderEmployeesList(app) {
                 <div class="bg-white rounded-xl shadow-lg p-6 mb-4">
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex gap-4">
-                            <button onclick="app.showInactive = false; app.render()" 
+                            <button onclick="app.showInactive = false; app.navigateTo('employees', { showInactive: false })" 
                                 class="px-4 py-2 rounded-lg transition ${!app.showInactive ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Actifs (${employees.length})
                             </button>
-                            <button onclick="app.showInactive = true; app.render()" 
+                            <button onclick="app.showInactive = true; app.navigateTo('employees', { showInactive: true })" 
                                 class="px-4 py-2 rounded-lg transition ${app.showInactive ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -95,7 +95,7 @@ export function renderEmployeesList(app) {
                                 </div>
                                 ${balanceHtml}
                                 <div class="mt-4 flex gap-2">
-                                    <button onclick="app.currentView='employeeDetails'; app.currentEmployee='${emp.id}'; app.render()" 
+                                    <button onclick="app.navigateTo('employeeDetails', { employee: '${emp.id}' })" 
                                         class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition text-sm">
                                         Voir détails
                                     </button>
@@ -137,13 +137,13 @@ export function renderEmployeeDetails(app) {
                 <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Détails de l'employé</h1>
                     <div class="flex gap-2">
-                        <button onclick="app.currentView='employees'; app.render()" 
+                        <button onclick="window.history.back()" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Retour">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
                         </button>
-                        <button onclick="app.currentView='home'; app.render()" 
+                        <button onclick="app.navigateTo('home')" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -306,13 +306,13 @@ export function renderNewEmployee(app) {
                 <div class="max-w-4xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Nouvel employé</h1>
                     <div class="flex gap-2">
-                        <button onclick="app.currentView='home'; app.render()" 
+                        <button onclick="app.navigateTo('home')" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
                         </button>
-                        <button onclick="app.currentView='selectEmployee'; app.render()" 
+                        <button onclick="window.history.back()" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Retour">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -374,7 +374,7 @@ export function renderSelectEmployee(app) {
                           app.transactionType === 'retour' ? 'Retour d\'uniformes' : 
                           'Ajout d\'équipement'}
                     </h1>
-                    <button onclick="app.currentView='home'; app.render()" 
+                    <button onclick="app.navigateTo('home')" 
                         class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -402,7 +402,7 @@ export function renderSelectEmployee(app) {
 
                     <!-- Bouton nouvel employé -->
                     <div class="mb-6">
-                        <button onclick="app.currentView='newEmployee'; app.render()" 
+                        <button onclick="app.navigateTo('newEmployee')" 
                             class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
