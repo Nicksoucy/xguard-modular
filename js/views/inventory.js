@@ -7,7 +7,7 @@ export function renderInventory(app) {
             <div class="glass-effect shadow-lg">
                 <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">État de l'inventaire</h1>
-                    <button onclick="app.currentView='home'; app.render()" 
+                    <button onclick="app.navigateTo('home')" 
                         class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -59,7 +59,7 @@ export function renderInventoryManagement(app) {
             <div class="glass-effect shadow-lg">
                 <div class="max-w-6xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Gestion d'inventaire</h1>
-                    <button onclick="app.currentView='home'; app.render()" 
+                    <button onclick="app.navigateTo('home')" 
                         class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -97,7 +97,7 @@ export function renderInventoryManagement(app) {
                         </div>
                     </button>
 
-                    <button onclick="app.currentView='newInventoryItem'; app.render()" 
+                    <button onclick="app.navigateTo('newInventoryItem')" 
                         class="bg-white rounded-xl shadow-lg p-6 hover-lift flex items-center">
                         <div class="p-4 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl mr-4">
                             <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,13 +200,13 @@ export function renderNewInventoryItem(app) {
                 <div class="max-w-4xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Nouvel article d'inventaire</h1>
                     <div class="flex gap-2">
-                        <button onclick="app.currentView='inventoryManagement'; app.render()" 
+                        <button onclick="window.history.back()" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Retour">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
                         </button>
-                        <button onclick="app.currentView='home'; app.render()" 
+                        <button onclick="app.navigateTo('home')" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -291,7 +291,7 @@ export function renderNewInventoryItem(app) {
                         </div>
 
                         <div class="flex gap-4 mt-8">
-                            <button type="button" onclick="app.currentView='inventoryManagement'; app.render()" 
+                            <button type="button" onclick="window.history.back()" 
                                 class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition">
                                 Annuler
                             </button>
