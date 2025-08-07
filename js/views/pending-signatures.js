@@ -1,3 +1,4 @@
+// views/pending-signatures.js
 export function renderPendingSignatures(app) {
     const pendingLinks = app.db.data.links.filter(l => !l.used);
     const pendingTransactions = pendingLinks.map(link => ({
@@ -40,37 +41,37 @@ export function renderPendingSignatures(app) {
                         ${pendingTransactions.map(({ link, transaction }) => {
                             const employee = app.db.getEmployee(transaction.employeeId);
                             const total = transaction.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                            const linkUrl = \`\${window.location.origin}\${window.location.pathname}?token=\${link.token}\`;
+                            const linkUrl = `${window.location.origin}${window.location.pathname}?token=${link.token}`;
                             const daysAgo = Math.floor((new Date() - new Date(transaction.createdAt)) / (1000 * 60 * 60 * 24));
                             
                             return `
                                 <div class="bg-white rounded-xl shadow-lg p-6 hover-lift animate-fade-in border-l-4 border-orange-500">
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
-                                            <p class="font-semibold text-lg">\${employee ? employee.name : 'Employé supprimé'}</p>
-                                            <p class="text-sm text-gray-600">Créé il y a \${daysAgo} jour\${daysAgo > 1 ? 's' : ''}</p>
-                                            <p class="text-sm text-gray-600">\${new Date(transaction.createdAt).toLocaleString('fr-CA')}</p>
+                                            <p class="font-semibold text-lg">${employee ? employee.name : 'Employé supprimé'}</p>
+                                            <p class="text-sm text-gray-600">Créé il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}</p>
+                                            <p class="text-sm text-gray-600">${new Date(transaction.createdAt).toLocaleString('fr-CA')}</p>
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-2xl font-bold text-gray-800">$\${total}</p>
-                                            <p class="text-sm text-gray-500">\${transaction.items.length} articles</p>
+                                            <p class="text-2xl font-bold text-gray-800">$${total}</p>
+                                            <p class="text-sm text-gray-500">${transaction.items.length} articles</p>
                                         </div>
                                     </div>
                                     <div class="border-t pt-4 mb-4">
                                         <div class="flex flex-wrap gap-2">
-                                            \${transaction.items.map(item => \`
+                                            ${transaction.items.map(item => `
                                                 <span class="px-2 py-1 bg-gray-100 rounded text-xs">
-                                                    \${item.quantity}× \${item.name} (\${item.size})
+                                                    ${item.quantity}× ${item.name} (${item.size})
                                                 </span>
-                                            \`).join('')}
+                                            `).join('')}
                                         </div>
                                     </div>
                                     <div class="bg-orange-50 rounded-lg p-4">
                                         <p class="text-sm font-semibold mb-2">Lien de signature:</p>
                                         <div class="flex items-center gap-2">
-                                            <input type="text" value="\${linkUrl}" readonly 
-                                                class="flex-1 px-3 py-2 bg-white border rounded-lg text-xs" id="link-\${link.token}">
-                                            <button onclick="app.copyLink('\${linkUrl}')" 
+                                            <input type="text" value="${linkUrl}" readonly 
+                                                class="flex-1 px-3 py-2 bg-white border rounded-lg text-xs" id="link-${link.token}">
+                                            <button onclick="app.copyLink('${linkUrl}')" 
                                                 class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
                                                 Copier
                                             </button>
