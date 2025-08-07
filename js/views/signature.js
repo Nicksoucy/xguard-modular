@@ -1,19 +1,66 @@
-// signature.js - Vue de signature électronique
-
+// views/signature.js
 export function renderSignature(app) {
     const link = app.db.data.links.find(l => l.token === app.currentToken);
+    
+    // Si le lien n'existe pas ou est déjà utilisé
     if (!link || link.used) {
-        return app.renderError('Lien invalide', 'Ce lien a déjà été utilisé ou n\'existe pas.');
+        return `
+            <div class="min-h-screen flex items-center justify-center p-4 gradient-bg">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
+                    <div class="mb-6">
+                        <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center mx-auto">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Lien invalide</h2>
+                    <p class="text-gray-600">Ce lien a déjà été utilisé ou n'existe pas.</p>
+                </div>
+            </div>
+        `;
     }
 
     const transaction = app.db.data.transactions.find(t => t.id === link.transactionId);
+    
+    // Si la transaction n'existe pas
     if (!transaction) {
-        return app.renderError('Transaction introuvable', 'La transaction associée n\'existe pas.');
+        return `
+            <div class="min-h-screen flex items-center justify-center p-4 gradient-bg">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
+                    <div class="mb-6">
+                        <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center mx-auto">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Transaction introuvable</h2>
+                    <p class="text-gray-600">La transaction associée n'existe pas.</p>
+                </div>
+            </div>
+        `;
     }
 
     const employee = app.db.getEmployee(transaction.employeeId);
+    
+    // Si l'employé n'existe pas
     if (!employee) {
-        return app.renderError('Employé introuvable', 'L\'employé associé n\'existe pas.');
+        return `
+            <div class="min-h-screen flex items-center justify-center p-4 gradient-bg">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
+                    <div class="mb-6">
+                        <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center mx-auto">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Employé introuvable</h2>
+                    <p class="text-gray-600">L'employé associé n'existe pas.</p>
+                </div>
+            </div>
+        `;
     }
     
     const total = transaction.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
