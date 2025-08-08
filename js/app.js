@@ -16,7 +16,8 @@ import {
     downloadMovementsReport,
     copyLink,
     updateSizeFields,
-    addCustomSize
+    addCustomSize,
+    generateTransactionPDF
 } from './utils/helpers.js';
 
 class XGuardApp {
@@ -193,7 +194,6 @@ class XGuardApp {
     }
 
     attachSignatureEvents() {
-        // Garder ici pour l'instant car c'est court
         const canvas = document.getElementById('signature-pad');
         if (!canvas) return;
 
@@ -237,13 +237,13 @@ class XGuardApp {
                 
                 if (transaction) {
                     const employee = this.db.getEmployee(transaction.employeeId);
-                    this.showSignatureSuccess(employee);
+                    this.showSignatureSuccess(employee, transaction);
                 }
             });
         }
     }
 
-    showSignatureSuccess(employee) {
+    showSignatureSuccess(employee, transaction) {
         const app = document.getElementById('app');
         app.innerHTML = `
             <div class="min-h-screen flex items-center justify-center p-4 gradient-bg">
@@ -261,10 +261,37 @@ class XGuardApp {
                         <p class="text-sm mb-2"><span class="text-gray-600">Code:</span> <span class="font-medium">${employee.id}</span></p>
                         <p class="text-sm"><span class="text-gray-600">Date:</span> <span class="font-medium">${new Date().toLocaleString('fr-CA')}</span></p>
                     </div>
-                    <p class="text-gray-600">La transaction a été enregistrée avec succès.</p>
+                    <p class="text-gray-600 mb-6">La transaction a été enregistrée avec succès.</p>
+                    
+                    <button onclick="app.downloadTransactionPDF('${transaction.id}')" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition font-medium mb-3 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Télécharger le PDF
+                    </button>
+                    
+                    <p class="text-sm text-gray-500">Vous pouvez maintenant fermer cette fenêtre</p>
                 </div>
             </div>
         `;
+    }
+
+    // Nouvelle méthode pour télécharger le PDF
+    downloadTransactionPDF(transactionId) {
+        const transaction = this.db.data.transactions.find(t => t.id === transactionId);
+        if (!transaction) {
+            alert('Transaction introuvable');
+            return;
+        }
+        
+        const employee = this.db.getEmployee(transaction.employeeId);
+        if (!employee) {
+            alert('Employé introuvable');
+            return;
+        }
+        
+        generateTransactionPDF(transaction, employee);
     }
 
     // Méthodes utilitaires
