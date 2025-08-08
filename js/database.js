@@ -291,4 +291,16 @@ export class Database {
         link.click();
         URL.revokeObjectURL(url);
     }
+
+    // === AJOUT pour annuler une signature spécifique ===
+    removeSignature(token) {
+        this.data.links = this.data.links.filter(link => link.token !== token);
+        this.save();
+    }
+
+    // === AJOUT pour annuler toutes les signatures en attente ===
+    removeAllSignatures() {
+        this.data.links = [];
+        this.save();
+    }
 }
