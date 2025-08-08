@@ -22,6 +22,9 @@ import {
 
 class XGuardApp {
     constructor() {
+        // Exposer l'app globalement AVANT tout le reste
+        window.app = this;
+        
         this.db = new Database();
         this.currentView = 'home';
         this.currentEmployee = null;
@@ -41,9 +44,6 @@ class XGuardApp {
             this.currentToken = token;
             this.currentView = 'signature';
         }
-
-        // Exposer l'app globalement pour les onclick
-        window.app = this;
         
         // Gérer l'historique du navigateur
         window.addEventListener('popstate', (event) => {
