@@ -1,4 +1,4 @@
-// employees.js - Toutes les vues liées aux employés
+// views/employees.js - Toutes les vues liées aux employés
 
 export function renderEmployeesList(app) {
     const employees = app.db.data.employees.filter(e => e.active);
@@ -113,37 +113,4 @@ export function renderEmployeesList(app) {
                                 ${balanceHtml}
                                 <div class="mt-4 flex gap-2">
                                     <button onclick="app.navigateTo('employeeDetails', { employee: '${emp.id}' })" 
-                                        class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition text-sm">
-                                        Voir détails
-                                    </button>
-                                    ${emp.active ? `
-                                        <button onclick="app.startTransactionForEmployee('attribution', '${emp.id}')" 
-                                            class="flex-1 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition text-sm">
-                                            Attribuer
-                                        </button>
-                                    ` : `
-                                        <button onclick="app.reactivateEmployee('${emp.id}')" 
-                                            class="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition text-sm">
-                                            Réactiver
-                                        </button>
-                                    `}
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                
-                <!-- Message si aucun résultat -->
-                <div id="no-results" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
-                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Aucun employé trouvé</h3>
-                    <p class="text-gray-600">Essayez avec d'autres critères de recherche</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ... reste du fichier (les autres fonctions restent identiques)
+                                        class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 tran
