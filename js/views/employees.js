@@ -130,6 +130,9 @@ export function renderEmployeeDetails(app) {
     const balance = app.db.getEmployeeBalance(app.currentEmployee);
     const totalValue = balance.reduce((sum, item) => sum + (item.quantity * item.price), 0);
     
+    // Récupérer les transactions signées
+    const signedTransactions = transactions.filter(t => t.signed && t.type !== 'retour');
+    
     return `
         <div class="min-h-screen gradient-bg">
             <!-- Header -->
@@ -216,7 +219,7 @@ export function renderEmployeeDetails(app) {
                     ` : ''}
                 </div>
 
-                <!-- Inventaire actuel -->
+                <!-- Articles en possession -->
                 ${balance.length > 0 ? `
                     <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
                         <h3 class="text-xl font-semibold mb-4">Articles en possession</h3>
@@ -236,6 +239,36 @@ export function renderEmployeeDetails(app) {
                                     <p class="text-sm text-green-600 font-semibold mt-1">$${item.quantity * item.price}</p>
                                 </div>
                             `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Documents signés -->
+                ${signedTransactions.length > 0 ? `
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Documents signés</h3>
+                        <div class="space-y-3">
+                            ${signedTransactions.map(t => {
+                                const total = t.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                                const date = new Date(t.signedAt || t.createdAt);
+                                const typeText = t.type === 'attribution' ? 'Attribution' : 'Ajout';
+                                
+                                return `
+                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                        <div>
+                                            <p class="font-medium">${typeText} - ${date.toLocaleDateString('fr-CA')}</p>
+                                            <p class="text-sm text-gray-600">${t.items.length} articles • $${total}</p>
+                                        </div>
+                                        <button onclick="app.downloadTransactionPDF('${t.id}')" 
+                                            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            PDF
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 ` : ''}
@@ -306,16 +339,16 @@ export function renderNewEmployee(app) {
                 <div class="max-w-4xl mx-auto p-4 flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800">Nouvel employé</h1>
                     <div class="flex gap-2">
-                        <button onclick="app.navigateTo('home')" 
-                            class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
-                        </button>
                         <button onclick="window.history.back()" 
                             class="p-2 hover:bg-white/20 rounded-lg transition" title="Retour">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                        </button>
+                        <button onclick="app.navigateTo('home')" 
+                            class="p-2 hover:bg-white/20 rounded-lg transition" title="Accueil">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
                         </button>
                     </div>
