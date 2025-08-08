@@ -109,6 +109,18 @@ class XGuardApp {
         }
     }
 
+    // === AJOUT : Annuler une signature spécifique (par token) ===
+    cancelSignature(token) {
+        this.db.removeSignature(token);
+        this.render();
+    }
+
+    // === AJOUT : Annuler toutes les signatures en attente ===
+    cancelAllSignatures() {
+        this.db.removeAllSignatures();
+        this.render();
+    }
+
     // Méthodes de transaction
     startTransaction(type) {
         this.transactionController.startTransaction(type);
