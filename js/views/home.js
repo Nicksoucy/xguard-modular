@@ -1,4 +1,4 @@
-// home.js - Vue d'accueil
+// views/home.js
 export function renderHome(app) {
     const stats = {
         totalEmployees: app.db.data.employees.filter(e => e.active).length,
@@ -135,7 +135,7 @@ export function renderHome(app) {
 
                 <!-- Actions secondaires -->
                 <div class="grid md:grid-cols-3 gap-4 animate-fade-in" style="animation-delay: 0.4s">
-                    <button onclick="app.navigateTo('selectEmployee')" 
+                    <button onclick="app.navigateTo('employees')" 
                         class="bg-white/90 backdrop-blur rounded-xl p-6 hover:bg-white transition-all duration-300 flex items-center group">
                         <div class="p-4 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl mr-4 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
