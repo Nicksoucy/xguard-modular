@@ -5,7 +5,7 @@ export function renderPendingSignatures(app) {
         link,
         transaction: app.db.data.transactions.find(t => t.id === link.transactionId)
     })).filter(item => item.transaction);
-    
+
     return `
         <div class="min-h-screen gradient-bg">
             <!-- Header -->
@@ -33,8 +33,13 @@ export function renderPendingSignatures(app) {
                         <p class="text-gray-600">Toutes les transactions ont été signées</p>
                     </div>
                 ` : `
-                    <div class="bg-white rounded-xl shadow-lg p-6 mb-4">
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-4 flex justify-between items-center">
                         <p class="text-lg font-semibold text-orange-600">${pendingTransactions.length} signatures en attente</p>
+                        <button onclick="app.cancelAllSignatures()" 
+                            class="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 text-sm"
+                            title="Annuler toutes les signatures">
+                            Tout annuler
+                        </button>
                     </div>
 
                     <div class="space-y-4">
@@ -66,7 +71,7 @@ export function renderPendingSignatures(app) {
                                             `).join('')}
                                         </div>
                                     </div>
-                                    <div class="bg-orange-50 rounded-lg p-4">
+                                    <div class="bg-orange-50 rounded-lg p-4 mb-3">
                                         <p class="text-sm font-semibold mb-2">Lien de signature:</p>
                                         <div class="flex items-center gap-2">
                                             <input type="text" value="${linkUrl}" readonly 
@@ -76,6 +81,13 @@ export function renderPendingSignatures(app) {
                                                 Copier
                                             </button>
                                         </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button onclick="app.cancelSignature('${link.token}')"
+                                            class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 text-sm transition"
+                                            title="Annuler cette demande de signature">
+                                            Annuler
+                                        </button>
                                     </div>
                                 </div>
                             `;
